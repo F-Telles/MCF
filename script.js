@@ -1,166 +1,186 @@
+
 let fleet = JSON.parse(localStorage.getItem('agco_fleet') || '[]');
+
 let builderParams = [];
+
 let currentSlide = 0;
+
 let editIndex = -1;
 
+
+
 const welcomeImages = [
-    "https://images.unsplash.com/photo-1594495894542-a4e170742845?auto=format&fit=crop&w=800&q=80", // Placeholder Tractor 1
-    "https://images.unsplash.com/photo-1594913785162-e6786b42dea3?auto=format&fit=crop&w=800&q=80"  // Placeholder Tractor 2
+
+    "img/agco-hexagon-guidance-770x433.jpg",
+
+    "img/Img-Trator_da_Serie_S6_MG_0300.jpg",
+
+    "img/mf-5700-gallery-01-1400x933.jpg",
+
+    "img/mf-8700-s-key-benefit-technology.jpg"
+
 ];
 
-const checkItems = ["Four Wheel Drive - ROW logic", "DIFFLOCK - Automatic mode", "Rear Linkage - Rear hitch lock/unlock", "Rear PTO - PTO speed limitation", "Transmission - Brake to neutral", "Engine - Start/stop function", "Brakes - Tractor brakes", "Calibration - Hitch", "Isobus - UT (Universal Terminal)"];
+
+
+const checkItems = [
+
+    "Four Wheel Drive - ROW logic", "Four Wheel Drive - Failure mode", "DIFFLOCK - ROW logic",
+
+    "DIFFLOCK - Automatic mode", "DIFFLOCK - Failure mode", "Rear Linkage - Rear hitch lock/unlock",
+
+    "Rear Linkage - Rear Hitch internal", "Rear Linkage - Rear hitch modes", "Rear Linkage - Rear hitch features",
+
+    "Rear Linkage - Failure mode", "Rear PTO - Electrical 2 speeds (540/540E)",
+
+    "Rear PTO - Electrical 3 Speeds (540/540E/1000)", "Rear PTO - PTO speed limitation",
+
+    "Rear PTO - PTO functionnal", "Rear PTO - PTO Brake", "Rear PTO - PTO Safety",
+
+    "Rear PTO - PTO failure mode", "Rear PTO - Stationary Mode", "Rear PTO - FRONT PTO",
+
+    "Rear PTO - T3 perfo (C3)", "Rear PTO - PTO Fender", "Transmission - OPS and FNR",
+
+    "Transmission - Creeper", "Transmission - Brake to neutral", "Transmission - Maximal speed",
+
+    "Transmission - Powershuttle Logic Safety", "Transmission - PowerShuttle Agressivity",
+
+    "Transmission - Declutch Button", "Transmission - Preprogram Powershift",
+
+    "Transmission - Failure modes and safety", "Gearbox - Seat Management", "Basic OPS management",
+
+    "Engine - Start/stop function", "Engine - HMI displays", "Engine - STGV/T3 displays",
+
+    "Engine - Mémo A", "Engine - Engine curve mgnt", "Brakes - Tractor brakes",
+
+    "Brakes - Non MR (ROW/US)", "Display - Monitoring display", "Display - Maintenance Service",
+
+    "Tractor Hour Management", "Calibration - Steering middle point", "Calibration - WAS center average",
+
+    "Calibration - Left/right WAS", "Calibration - PVED", "Calibration - Clutch Pedal",
+
+    "Calibration - Hitch lever", "Calibration - Hitch", "Calibration - Forward Speed",
+
+    "Calibration - Linkage controls", "Calibration - Powershuttle", "Telemetry - Life cycle",
+
+    "Telemetry - Activation via AGCO VT", "Telemetry - Config files", "Isobus - UT (Universal Terminal)",
+
+    "Isobus - Relay managment", "Isobus - Tracteur ECU", "Isobus - Session Control + VOE",
+
+    "Isobus - Task doc", "Reverse Buzzer/Lights"
+
+];
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
+
     updateMachineSelect();
+
     initCarousel();
+
 });
 
-// NAVIGATION
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tabId).classList.add('active');
-    document.getElementById('btn-' + tabId).classList.add('active');
+
+
+// CARROSSEL
+
+function initCarousel() {
+
+    const track = document.getElementById('carousel-track');
+
+    if(track) track.innerHTML = welcomeImages.map(src => `<img src="${src}" class="carousel-image">`).join('');
+
 }
 
-// CAROUSEL
-function initCarousel() {
-    const track = document.getElementById('carousel-track');
-    if(track) track.innerHTML = welcomeImages.map(src => `<img src="${src}" class="carousel-image" style="min-width:100%; object-fit:cover;">`).join('');
-}
+
 
 function moveCarousel(dir) {
+
     const track = document.getElementById('carousel-track');
+
     currentSlide = (currentSlide + dir + welcomeImages.length) % welcomeImages.length;
+
     track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
 }
 
-// ADVANCED BUILDER LOGIC
-function addParamToBuilder() {
-    const idField = document.getElementById('new-param-id');
-    const valField = document.getElementById('new-param-val');
-    const id = idField.value.trim();
-    const val = valField.value;
 
-    if (!id || val === "") return alert("Please fill ID and Value");
+
+function switchTab(tabId) {
+
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    document.getElementById('tab-' + tabId).classList.add('active');
+
+    document.getElementById('btn-' + tabId).classList.add('active');
+
+}
+
+
+
+// NOVO: EDITAR INFO DO TRATOR (ID, Marca, Modelo)
+
+function editMachineInfo() {
+
+    const idx = document.getElementById('select-machine').value;
+
+    if (idx === "") return;
+
+    const m = fleet[idx];
+
+
+
+    const newID = prompt("Update Tractor ID:", m.id);
+
+    const newModel = prompt("Update Tractor Model:", m.model);
+
+    const newBrand = prompt("Update Brand (Valtra/Massey Ferguson):", m.brand);
+
+
+
+    if (newID !== null && newModel !== null && newBrand !== null) {
+
+        fleet[idx].id = newID;
+
+        fleet[idx].model = newModel;
+
+        fleet[idx].brand = newBrand;
+
+        localStorage.setItem('agco_fleet', JSON.stringify(fleet));
+
+        updateMachineSelect();
+
+        document.getElementById('select-machine').value = idx;
+
+        loadMachineDetails();
+
+        alert("Machine info updated successfully!");
+
+    }
+
+}
+
+
+
+// BUILDER (ACEITA CHAR NO ID)
+
+function addParamToBuilder() {
+
+    const id = document.getElementById('new-param-id').value;
+
+    const val = document.getElementById('new-param-val').value;
+
+    if(!id || val === "") return alert("Enter ID and Value");
 
     builderParams.push({ id: id, val: parseInt(val) || 0 });
-    renderBuilder();
-    idField.value = ''; valField.value = ''; idField.focus();
-}
-
-function processBulkInput() {
-    const raw = document.getElementById('bulk-input').value;
-    if (!raw.trim()) return;
-
-    const lines = raw.split('\n');
-    let addedCount = 0;
-
-    lines.forEach(line => {
-        const parts = line.split(/[,;\s\t]+/);
-        if (parts.length >= 2) {
-            const id = parts[0].trim();
-            const val = parseInt(parts[1].trim());
-            if (id && !isNaN(val)) {
-                builderParams.push({ id: id, val: val });
-                addedCount++;
-            }
-        }
-    });
 
     renderBuilder();
-    document.getElementById('bulk-input').value = '';
-}
 
-function renderBuilder() {
-    const tbody = document.getElementById('builder-table-body');
-    document.getElementById('param-count').innerText = `${builderParams.length} Parameters`;
-    
-    tbody.innerHTML = builderParams.map((p, i) => `
-        <tr>
-            <td><strong>${p.id}</strong></td>
-            <td>${p.val}</td>
-            <td><button onclick="removeParam(${i})" style="color:red; border:none; background:none; cursor:pointer;">✕</button></td>
-        </tr>
-    `).join('');
-}
+    document.getElementById('new-param-id').value = '';
 
-function removeParam(index) { builderParams.splice(index, 1); renderBuilder(); }
-function clearBuilder() { if(confirm("Clear all?")) { builderParams = []; renderBuilder(); } }
+    document.getElementById('new-param-val').value = '';
 
-function exportBuiltMCF() {
-    if(builderParams.length === 0) return alert("List is empty!");
-    const data = generateAGCOStructure(builderParams);
-    saveFile(data, `MANUAL_BUILD_${Date.now()}.mc`);
-}
-
-// FLEET MANAGEMENT
-function updateMachineSelect() {
-    const options = '<option value="">-- Select --</option>' + fleet.map((m, i) => `<option value="${i}">${m.id} - ${m.model}</option>`).join('');
-    document.getElementById('select-machine').innerHTML = options;
-    document.getElementById('select-machine-status').innerHTML = options;
-}
-
-function loadMachineDetails() {
-    const idx = document.getElementById('select-machine').value;
-    const welcome = document.getElementById('welcome-gallery');
-    const display = document.getElementById('export-display');
-    if (idx === "") { welcome.style.display="block"; display.style.display="none"; return; }
-    
-    welcome.style.display="none"; display.style.display="block";
-    const m = fleet[idx];
-    const head = document.getElementById('export-header');
-    head.style.background = (m.brand === "Valtra") ? "#ffcc00" : "#d32f2f";
-    head.style.color = (m.brand === "Valtra") ? "black" : "white";
-    document.getElementById('exp-txt-brand').innerText = m.brand;
-    document.getElementById('exp-txt-model').innerText = `${m.id} | ${m.model}`;
-    document.getElementById('export-mcf-table').innerHTML = m.params.map((p, i) => `
-        <div class="mcf-line"><span>ID: ${p.id}</span><input type="number" value="${p.val}" onchange="updateParam(${idx},${i},this.value)"></div>
-    `).join('');
-}
-
-function updateParam(mi, pi, val) {
-    fleet[mi].params[pi].val = parseInt(val) || 0;
-    localStorage.setItem('agco_fleet', JSON.stringify(fleet));
-}
-
-function handleImport(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const data = JSON.parse(e.target.result);
-            fleet.push({ 
-                id: document.getElementById('imp-id').value || "NEW", 
-                brand: document.getElementById('imp-brand').value, 
-                model: document.getElementById('imp-model').value || "Unknown", 
-                params: data.softwareParameters || [], 
-                swHistory: [] 
-            });
-            localStorage.setItem('agco_fleet', JSON.stringify(fleet));
-            location.reload();
-        } catch(err) { alert("Invalid .mc file"); }
-    };
-    reader.readAsText(file);
-}
-
-// UTILS
-function generateAGCOStructure(params) {
-    return { "softwareParameters": params, "syntaxVersion": "1.1.0", "deviceSerialNumber": "AGCO-DEV-TOOL", "transactionType": "COMPLETE" };
-}
-
-function saveFile(data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 4)], {type: "application/json"});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-}
-
-function downloadMC() {
-    const idx = document.getElementById('select-machine').value;
-    const m = fleet[idx];
-    saveFile(generateAGCOStructure(m.params), `MCF_${m.id}.mc`);
-}
-
-function deleteCurrentMachine() {
-    const idx = document.getElementById('select-machine').value;
-    if(confirm("Delete tractor?")) { fleet.splice(idx, 1); localStorage.setItem('agco_fleet', JSON.stringify(fleet)); location.reload(); }
 }
