@@ -1,174 +1,273 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AGCO | Engineering MCF Tool</title>
+
     <link rel="stylesheet" href="style.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </head>
+
 <body>
 
+
+
     <nav class="navbar">
+
         <div class="logo-placeholder">AGCO</div>
+
         <div class="nav-info">Master Configuration File Decoder | Project Felipe</div>
+
     </nav>
 
+
+
     <div class="menu-stripe">
+
         <span id="btn-export" class="tab-btn active" onclick="switchTab('export')">Fleet & Export</span>
+
         <span id="btn-import" class="tab-btn" onclick="switchTab('import')">Import MCF</span>
+
         <span id="btn-create" class="tab-btn" onclick="switchTab('create')">Create New MCF</span>
+
         <span id="btn-status" class="tab-btn" onclick="switchTab('status')">Regression Status</span>
+
     </div>
+
+
 
     <div class="main-container">
+
         <div id="tab-export" class="tab-content active">
+
             <div class="config-card">
+
                 <div class="central-selector-wrapper">
+
                     <h1>Select Available Tractor</h1>
+
                     <div class="input-group">
+
                         <label>Machines in Memory</label>
+
                         <select id="select-machine" onchange="loadMachineDetails()">
+
                             <option value="">-- Select a Machine --</option>
+
                         </select>
+
                     </div>
+
                 </div>
+
+
 
                 <div id="welcome-gallery">
+
                     <div class="carousel-container">
+
                         <button class="c-nav prev" onclick="moveCarousel(-1)">❮</button>
+
                         <div class="carousel-window">
+
                             <div id="carousel-track" class="carousel-track"></div>
+
                         </div>
+
                         <button class="c-nav next" onclick="moveCarousel(1)">❯</button>
+
                     </div>
+
+
+
                     <div class="brand-logos-container">
+
                         <img src="logo-massey.png" alt="Massey Ferguson" class="brand-logo">
+
                         <img src="logo-valtra.png" alt="Valtra" class="brand-logo">
+
                     </div>
+
                 </div>
+
+
 
                 <div id="export-display" style="display:none;">
+
                     <div id="export-header" class="res-header">
+
                         <div id="exp-txt-brand" class="res-brand"></div>
+
                         <div id="exp-txt-model" class="res-model"></div>
+
                     </div>
+
+
+
                     <div style="text-align: right; margin-top: 10px;">
+
                         <button class="btn-edit-sm" onclick="editMachineInfo()">✏️ Edit Machine Info</button>
+
                     </div>
+
+
+
                     <div class="mcf-terminal-container">
+
                         <div class="terminal-header">ACTIVE PARAMETERS CONFIGURATION</div>
+
                         <div class="mcf-grid" id="export-mcf-table"></div>
+
                     </div>
+
                     <div class="action-buttons">
+
                         <button class="btn-delete" onclick="deleteCurrentMachine()">🗑️ Delete Tractor</button>
+
                         <button class="btn-export" onclick="downloadMC()">🚀 Export .mc File</button>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
+
 
         <div id="tab-import" class="tab-content">
+
             <div class="config-card">
+
                 <h1>Register via Import</h1>
+
                 <div class="selectors">
+
                     <div class="input-group"><label>ID</label><input type="text" id="imp-id" placeholder="Ex: C2-23"></div>
+
                     <div class="input-group">
+
                         <label>Brand</label>
+
                         <select id="imp-brand"><option value="Valtra">Valtra</option><option value="Massey Ferguson">Massey Ferguson</option></select>
+
                     </div>
+
                     <div class="input-group"><label>Model</label><input type="text" id="imp-model" placeholder="Ex: S394"></div>
+
                 </div>
+
                 <div style="text-align:center">
+
                     <label class="custom-file-upload">
+
                         <input type="file" id="fileInput" accept=".mc" onchange="handleImport(event)">
+
                         📥 Select .mc File to Save in Fleet
+
                     </label>
+
                 </div>
+
             </div>
+
         </div>
+
+
 
         <div id="tab-create" class="tab-content">
+
             <div class="config-card">
-                <div class="builder-header">
-                    <h1>Advanced MCF Manual Builder</h1>
-                    <span class="badge">Draft Mode</span>
+
+                <h1>Manual MCF Builder</h1>
+
+                <div class="selectors">
+
+                    <div class="input-group"><label>Parameter ID (Char/Num)</label><input type="text" id="new-param-id" placeholder="Ex: 101 ou P_LIMIT"></div>
+
+                    <div class="input-group"><label>Value</label><input type="number" id="new-param-val" placeholder="0"></div>
+
+                    <div class="input-group"><label>Action</label><button class="btn-save" style="padding:10px" onclick="addParamToBuilder()">+ Add Param</button></div>
+
                 </div>
 
-                <div class="builder-layout">
-                    <div class="builder-controls">
-                        <div class="control-section">
-                            <h3>➕ Individual Entry</h3>
-                            <div class="input-row">
-                                <div class="input-group">
-                                    <label>Param ID</label>
-                                    <input type="text" id="new-param-id" placeholder="e.g. 1001">
-                                </div>
-                                <div class="input-group">
-                                    <label>Value</label>
-                                    <input type="number" id="new-param-val" placeholder="0">
-                                </div>
-                            </div>
-                            <button class="btn-add-param" onclick="addParamToBuilder()">Add Parameter</button>
-                        </div>
+                <div class="mcf-terminal-container">
 
-                        <div class="control-section">
-                            <h3>📋 Bulk Import (Excel/Note)</h3>
-                            <p class="helper-text">Paste lines as: ID [space or comma] Value</p>
-                            <textarea id="bulk-input" rows="8" placeholder="101, 1&#10;102, 55&#10;P_LIMIT, 200"></textarea>
-                            <button class="btn-bulk" onclick="processBulkInput()">Process & Append</button>
-                        </div>
-                    </div>
+                    <div class="terminal-header">BUILD LIST</div>
 
-                    <div class="builder-preview">
-                        <div class="table-status">
-                            <span id="param-count">0 Parameters</span>
-                            <button class="btn-clear-all" onclick="clearBuilder()">Clear All</button>
-                        </div>
-                        <div class="table-wrapper">
-                            <table class="modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>Parameter ID</th>
-                                        <th>Value</th>
-                                        <th style="width: 40px;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="builder-table-body"></tbody>
-                            </table>
-                        </div>
-                        <div class="builder-actions">
-                            <button class="btn-export-main" onclick="exportBuiltMCF()">
-                                🚀 Generate & Download .mc File
-                            </button>
-                        </div>
-                    </div>
+                    <div id="builder-table" class="mcf-grid"></div>
+
                 </div>
+
+                <div class="action-buttons">
+
+                    <button class="btn-export" onclick="exportBuiltMCF()">🚀 Export Manual MCF (.mc)</button>
+
+                    <button class="btn-delete" onclick="clearBuilder()">Clear List</button>
+
+                </div>
+
             </div>
+
         </div>
+
+
 
         <div id="tab-status" class="tab-content">
+
             <div class="config-card">
+
                 <h1>Regression Testing History</h1>
+
                 <div class="selectors">
+
                     <div class="input-group" style="grid-column: span 2;"><label>Select Tractor</label><select id="select-machine-status" onchange="loadChecklist()"></select></div>
+
                     <div class="input-group" id="version-input-group" style="display:none;"><label>Software Package</label><input type="text" id="software-version" placeholder="v2.1.0"></div>
+
                 </div>
+
                 <div id="status-display" style="display:none;">
+
                     <div id="checklist-container"></div>
+
                     <div class="action-buttons">
+
                         <button class="btn-save" id="save-status-btn" onclick="saveChecklist()">💾 Save Result</button>
+
                     </div>
+
                     <h3 style="margin-top:30px">History Log</h3>
+
                     <table class="history-table">
+
                         <thead><tr><th>Date</th><th>Package</th><th>Score</th><th>Actions</th></tr></thead>
+
                         <tbody id="history-body"></tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
     <footer>© 2026 AGCO Corporation. Project Felipe.</footer>
+
     <script src="script.js"></script>
+
 </body>
+
 </html>
