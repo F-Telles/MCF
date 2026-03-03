@@ -42,7 +42,6 @@
                         </div>
                         <button class="c-nav next" onclick="moveCarousel(1)">❯</button>
                     </div>
-
                     <div class="brand-logos-container">
                         <img src="logo-massey.png" alt="Massey Ferguson" class="brand-logo">
                         <img src="logo-valtra.png" alt="Valtra" class="brand-logo">
@@ -54,11 +53,9 @@
                         <div id="exp-txt-brand" class="res-brand"></div>
                         <div id="exp-txt-model" class="res-model"></div>
                     </div>
-
                     <div style="text-align: right; margin-top: 10px;">
                         <button class="btn-edit-sm" onclick="editMachineInfo()">✏️ Edit Machine Info</button>
                     </div>
-
                     <div class="mcf-terminal-container">
                         <div class="terminal-header">ACTIVE PARAMETERS CONFIGURATION</div>
                         <div class="mcf-grid" id="export-mcf-table"></div>
@@ -93,19 +90,59 @@
 
         <div id="tab-create" class="tab-content">
             <div class="config-card">
-                <h1>Manual MCF Builder</h1>
-                <div class="selectors">
-                    <div class="input-group"><label>Parameter ID (Char/Num)</label><input type="text" id="new-param-id" placeholder="Ex: 101 ou P_LIMIT"></div>
-                    <div class="input-group"><label>Value</label><input type="number" id="new-param-val" placeholder="0"></div>
-                    <div class="input-group"><label>Action</label><button class="btn-save" style="padding:10px" onclick="addParamToBuilder()">+ Add Param</button></div>
+                <div class="builder-header">
+                    <h1>Advanced MCF Manual Builder</h1>
+                    <span class="badge">Draft Mode</span>
                 </div>
-                <div class="mcf-terminal-container">
-                    <div class="terminal-header">BUILD LIST</div>
-                    <div id="builder-table" class="mcf-grid"></div>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-export" onclick="exportBuiltMCF()">🚀 Export Manual MCF (.mc)</button>
-                    <button class="btn-delete" onclick="clearBuilder()">Clear List</button>
+
+                <div class="builder-layout">
+                    <div class="builder-controls">
+                        <div class="control-section">
+                            <h3>➕ Individual Entry</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Param ID</label>
+                                    <input type="text" id="new-param-id" placeholder="e.g. 1001">
+                                </div>
+                                <div class="input-group">
+                                    <label>Value</label>
+                                    <input type="number" id="new-param-val" placeholder="0">
+                                </div>
+                            </div>
+                            <button class="btn-add-param" onclick="addParamToBuilder()">Add Parameter</button>
+                        </div>
+
+                        <div class="control-section">
+                            <h3>📋 Bulk Import (Excel/Note)</h3>
+                            <p class="helper-text">Paste lines as: ID [space or comma] Value</p>
+                            <textarea id="bulk-input" rows="8" placeholder="101, 1&#10;102, 55&#10;P_LIMIT, 200"></textarea>
+                            <button class="btn-bulk" onclick="processBulkInput()">Process & Append</button>
+                        </div>
+                    </div>
+
+                    <div class="builder-preview">
+                        <div class="table-status">
+                            <span id="param-count">0 Parameters</span>
+                            <button class="btn-clear-all" onclick="clearBuilder()">Clear All</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter ID</th>
+                                        <th>Value</th>
+                                        <th style="width: 40px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="builder-table-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="builder-actions">
+                            <button class="btn-export-main" onclick="exportBuiltMCF()">
+                                🚀 Generate & Download .mc File
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
